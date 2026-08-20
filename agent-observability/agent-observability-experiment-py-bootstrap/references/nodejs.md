@@ -1,6 +1,6 @@
 # Node.js adapter reference
 
-This file is the Node transport contract for `llm-obs-experiment-bootstrap`. Load it only when using `tracer.llmobs.experiments` or when emitting an HTTP artifact in Node.js.
+This file is the Node SDK contract for `llm-obs-experiment-bootstrap`. Load it only when using `tracer.llmobs.experiments`.
 
 ## Source of truth
 
@@ -149,5 +149,4 @@ Do not use the local `.run()` method for an externally driven experiment. Do not
 - Use `inputData`/`expectedOutput` in SDK dataset records; do not copy Python’s `input_data` spelling into Node objects.
 - Keep evaluator labels stable and valid.
 - Keep provenance in `config` and `tags`.
-- Do not manually duplicate the SDK HTTP client in a Node SDK artifact.
 - Use `--task-source` for a real module/function whenever possible; otherwise emit a prominent placeholder.

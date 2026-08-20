@@ -88,7 +88,7 @@ The `agent-observability` directory contains six skills for working with Agent O
 | Skill | Purpose |
 |-------|---------|
 | `agent-observability-experiment-analyzer` | Analyze and compare offline LLM experiments |
-| `agent-observability-experiment-py-bootstrap` | Bootstrap reproducible experiments through the Python SDK, Node SDK, or HTTP API (legacy Python path retained) |
+| `agent-observability-experiment-py-bootstrap` | Bootstrap reproducible experiments through the Python or Node SDK (legacy Python path retained) |
 | `agent-observability-trace-rca` | Root-cause production failures using eval judge signal or runtime errors |
 | `agent-observability-eval-bootstrap` | Generate evaluator code from traces, optionally seeded by RCA output. Also emits a dataset from traces in `--emit-dataset` mode. |
 | `agent-observability-eval-pipeline` | Eight-phase pipeline: classify → RCA → bootstrap evaluators → create dataset → publish → generate experiment → run → analyze. Stop early with `--stop-after`. |
@@ -112,9 +112,8 @@ Use `agent-observability-session-classify` independently to evaluate whether ind
 satisfied user intent, combining Agent Observability trace data with RUM behavioral signals.
 
 Use `agent-observability-experiment-py-bootstrap` to bootstrap a reproducible experiment through the
-Python `ddtrace.llmobs` SDK, the Node `dd-trace` SDK, or the Datadog HTTP API. The legacy Python
-invocation remains supported; generated artifacts can use inline records, local files, or named/identified
-Datadog datasets.
+Python `ddtrace.llmobs` SDK or the Node `dd-trace` SDK. The legacy Python invocation remains supported;
+generated artifacts can use inline records, local files, or named Datadog datasets.
 
 The bootstrap skill keeps adapter-specific contracts in its `references/` directory and loads only the selected
 Python SDK, Node SDK, or HTTP reference. Provider and evaluator-style references are loaded separately when needed.
@@ -171,7 +170,6 @@ Look at the errors on <ml_app> over the last 24h
 /agent-observability-experiment-py-bootstrap --dataset-name qa_v3 --project-name customer-qa  # existing Datadog dataset
 /agent-observability-experiment-py-bootstrap --evaluator-style remote                         # server-side RemoteEvaluator stubs
 /agent-observability-experiment-py-bootstrap --adapter node --format mjs --task-source app:answer # Node SDK artifact
-/agent-observability-experiment-py-bootstrap --adapter http --dataset-id <uuid>               # HTTP API artifact
 
 # Classify a session
 /eval-session-classify <session_id>

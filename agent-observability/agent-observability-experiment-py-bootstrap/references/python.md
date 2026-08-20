@@ -1,6 +1,6 @@
 # Python adapter reference
 
-This file is the Python transport contract for `llm-obs-experiment-bootstrap`. Load it only when the Python SDK is the transport or when an HTTP artifact is being emitted in Python.
+This file is the Python SDK contract for `llm-obs-experiment-bootstrap`. Load it only when the Python SDK is the selected adapter.
 
 ## Source of truth
 
