@@ -1,6 +1,6 @@
 # Node.js adapter reference
 
-This file is the Node SDK contract for `llm-obs-experiment-bootstrap`. Load it only when using `tracer.llmobs.experiments`.
+This file is the Node SDK contract for `agent-observability-experiment-bootstrap`. Load it only when using `tracer.llmobs.experiments`.
 
 ## Source of truth
 

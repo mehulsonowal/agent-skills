@@ -1,5 +1,5 @@
 ---
-name: llm-obs-experiment-bootstrap
+name: agent-observability-experiment-bootstrap
 description: Bootstrap a reproducible LLM Observability experiment through the Python ddtrace SDK or the Node dd-trace SDK. Use for experiment, dataset, evaluator, benchmark, regression, or LLM-as-a-judge scaffolding. The legacy Python invocation remains supported.
 ---
 
@@ -14,7 +14,7 @@ This skill is adapter-independent. The language-specific API contract lives in `
 The installed directory and legacy invocation remain valid:
 
 ```text
-/agent-observability-experiment-py-bootstrap [--purpose TEXT] [--format py|ipynb]
+/agent-observability-experiment-bootstrap [--purpose TEXT] [--format py|ipynb|mjs]
   [--dataset PATH | --dataset-name NAME] [--dataset-version N]
   [--project-name NAME] [--evaluator-style function|class|remote]
   [--jobs N] [--output PATH] [--task-source module:function]
@@ -37,10 +37,10 @@ Load context in this order:
 
 1. Parse the adapter.
 2. Read exactly one adapter reference:
-   - Python SDK → `references/python.md`
+   - Python SDK → `references/python/python.md`
    - Node SDK → `references/nodejs.md`
-3. Read only the selected provider reference under `references/providers/` for Python task generation.
-4. Read only the selected evaluator reference under `references/evaluator-styles/`.
+3. For Python task generation, read only the selected provider reference under `references/python/providers/`.
+4. For Python task generation, read only the selected evaluator reference under `references/python/evaluator-styles/`.
 
 Do not load all provider, evaluator, Python, and Node references “for completeness.” The selected reference is the source of truth for syntax and API behavior.
 
@@ -80,7 +80,7 @@ Support:
 
 For local JSON, require a top-level array, validate the selected adapter’s record shape, scrub obvious PII and credential-like values, and report affected record indices. Do not invent canonical or remote record IDs.
 
-For CSV, preserve the runtime path and document the dependency. Use the Python CSV column contract from `references/python.md`; Node generation must not pretend that a Python-only CSV helper exists.
+For CSV, preserve the runtime path and document the dependency. Use the Python CSV column contract from `references/python/python.md`; Node generation must not pretend that a Python-only CSV helper exists.
 
 ### 3. Resolve the task
 
@@ -140,7 +140,7 @@ Project: <project>
 Dataset: <local path | name>, version=<version or latest>
 Task: <wired source | placeholder>
 Evaluators: <labels>
-Provenance: generated_by=claude-code, adapter=<adapter>, skill=llm-obs-experiment-bootstrap
+Provenance: generated_by=claude-code, adapter=<adapter>, skill=agent-observability-experiment-bootstrap
 Validation: <commands and pass/fail>
 Result link: <URL or pending until run>
 
@@ -168,9 +168,8 @@ Keep shared workflow guidance here and language-specific syntax in the reference
 
 ## Existing references
 
-- `references/python.md` — Python `ddtrace.llmobs` API and legacy Python compatibility.
+- `references/python/` — Python `ddtrace.llmobs` API, providers, evaluator styles, environment template, and legacy compatibility.
 - `references/nodejs.md` — Node `tracer.llmobs.experiments` API.
-- `references/providers/` — provider-specific task/environment guidance; load one as needed.
-- `references/evaluator-styles/` — function, class, or remote evaluator guidance; load one as needed.
+
 
 Do not modify `dd-trace-py` or `dd-trace-js` while updating this skill.

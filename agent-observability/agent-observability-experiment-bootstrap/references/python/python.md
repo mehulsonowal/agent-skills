@@ -1,6 +1,6 @@
 # Python adapter reference
 
-This file is the Python SDK contract for `llm-obs-experiment-bootstrap`. Load it only when the Python SDK is the selected adapter.
+This file is the Python SDK contract for `agent-observability-experiment-bootstrap`. Load it only when the Python SDK is the selected adapter.
 
 ## Source of truth
 
@@ -219,7 +219,7 @@ Never import `_experiment`, `_llmobs`, `_evaluators`, or any other underscore-pr
 The legacy command name and Python defaults remain supported:
 
 ```text
-/agent-observability-experiment-py-bootstrap
+/agent-observability-experiment-bootstrap
   [--purpose TEXT] [--format py|ipynb]
   [--dataset PATH | --dataset-name NAME] [--dataset-version N]
   [--project-name NAME] [--evaluator-style function|class|remote]
@@ -333,7 +333,7 @@ Scan the selected function and immediate same-module calls for side effects. War
 
 Required Datadog credentials are `DD_API_KEY` and either `DD_APPLICATION_KEY` or `DD_APP_KEY`; `DD_SITE` defaults to `datadoghq.com`. Provider credentials are conditional on the discovered task and must not be asserted speculatively.
 
-Emit the shipped `scripts/env_setup_template.py` rather than reimplementing the loader. It must:
+Emit the shipped `references/python/env_setup_template.py` rather than reimplementing the loader. It must:
 
 1. Load explicit `--env-file` overrides first.
 2. Search the generated file directory, cwd, parent directories, and `~/.datadog/credentials`.
@@ -345,20 +345,20 @@ Load only the matching provider reference:
 
 | Detected task SDK | Reference |
 |---|---|
-| OpenAI or Azure OpenAI | `references/providers/openai.md` |
-| Anthropic | `references/providers/anthropic.md` |
-| LiteLLM | `references/providers/litellm.md` |
-| LangChain | `references/providers/langchain.md`, then its underlying provider guidance |
-| LlamaIndex | `references/providers/llamaindex.md` |
-| Gemini or Vertex | `references/providers/gemini.md` |
-| AWS Bedrock | `references/providers/bedrock.md` |
+| OpenAI or Azure OpenAI | `references/python/providers/openai.md` |
+| Anthropic | `references/python/providers/anthropic.md` |
+| LiteLLM | `references/python/providers/litellm.md` |
+| LangChain | `references/python/providers/langchain.md`, then its underlying provider guidance |
+| LlamaIndex | `references/python/providers/llamaindex.md` |
+| Gemini or Vertex | `references/python/providers/gemini.md` |
+| AWS Bedrock | `references/python/providers/bedrock.md` |
 | Custom/unknown | No fabricated assert; emit a clear user TODO for required keys. |
 
 Always pass `site=os.getenv("DD_SITE", "datadoghq.com")` to `LLMObs.enable`. Never embed keys, use a literal secret, overwrite an exported shell value, or assert provider keys unrelated to the task.
 
 ## Python evaluator selection
 
-Load exactly one evaluator-style reference under `references/evaluator-styles/`. The style controls the API surface; the purpose controls evaluator semantics:
+Load exactly one evaluator-style reference under `references/python/evaluator-styles/`. The style controls the API surface; the purpose controls evaluator semantics:
 
 - `function`: plain functions for most experiments; trivial checks may return bool/float, richer checks should return `EvaluatorResult`.
 - `class`: public `BaseEvaluator`/`BaseAsyncEvaluator` implementations with `evaluate` returning `EvaluatorResult`.
@@ -432,7 +432,7 @@ For the legacy Python invocation, preserve the startup-beacon behavior when a Da
 3. Otherwise use the Datadog MCP beacon when the corresponding LLM Observability MCP tool is available.
 4. If neither backend is available, skip silently or print one informational line.
 5. Beacon failure is non-fatal and must never block local code generation.
-6. Prefix MCP telemetry intent with `skill:agent-observability-experiment-py-bootstrap[<invocation_id>]`; use the `:start` suffix for the startup call.
+6. Prefix MCP telemetry intent with `skill:agent-observability-experiment-bootstrap[<invocation_id>]`; use the `:start` suffix for the startup call.
 
 Do not expose or persist the beacon response payload.
 
