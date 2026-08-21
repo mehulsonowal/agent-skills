@@ -162,7 +162,7 @@ Next steps:
 
 ## Reference maintenance
 
-Each adapter reference must identify the local source files and branch used to verify it. Re-check the reference when the SDK version changes. The local `dd-trace-py` checkout currently uses `main` rather than a local `master` ref; use its default `main` branch as the source of truth. `dd-trace-js` currently exposes the experiment API on its local `master` branch.
+Each adapter reference must identify the public source links and branch used to verify it. Re-check the reference when the SDK version changes. The Python reference uses the public `dd-trace-py` `main` branch; the Node reference uses the public `dd-trace-js` `master` branch.
 
 Keep shared workflow guidance here and language-specific syntax in the references. If a detail is only true for one SDK, do not duplicate it in this file.
 
