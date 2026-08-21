@@ -7,7 +7,7 @@ description: Bootstrap a reproducible LLM Observability experiment through the P
 
 Generate one reproducible experiment artifact. The artifact evaluates a task over a versioned dataset, records outputs and evaluator metrics, carries configuration and provenance, and prints a result link or identifiers when possible.
 
-This skill is adapter-independent. The language-specific API contract lives in `references/` and must be loaded selectively.
+This skill is adapter-independent. Each adapter owns a language-specific directory under `references/`; load only the selected adapter contract. The directories are intentionally symmetric even when one adapter currently has fewer supporting references.
 
 ## Invocation and compatibility
 
@@ -38,7 +38,7 @@ Load context in this order:
 1. Parse the adapter.
 2. Read exactly one adapter reference:
    - Python SDK → `references/python/python.md`
-   - Node SDK → `references/nodejs.md`
+   - Node SDK → `references/node/nodejs.md`
 3. For Python task generation, read only the selected provider reference under `references/python/providers/`.
 4. For Python task generation, read only the selected evaluator reference under `references/python/evaluator-styles/`.
 
@@ -169,7 +169,7 @@ Keep shared workflow guidance here and language-specific syntax in the reference
 ## Existing references
 
 - `references/python/` — Python `ddtrace.llmobs` API, providers, evaluator styles, environment template, and legacy compatibility.
-- `references/nodejs.md` — Node `tracer.llmobs.experiments` API.
+- `references/node/` — Node `tracer.llmobs.experiments` API and future Node-specific references.
 
 
 Do not modify `dd-trace-py` or `dd-trace-js` while updating this skill.
