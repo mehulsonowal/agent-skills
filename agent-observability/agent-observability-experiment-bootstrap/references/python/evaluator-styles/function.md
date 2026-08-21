@@ -36,4 +36,4 @@ def response_well_formed(input_data, output_data, expected_output) -> EvaluatorR
 
 ## When NOT to use this style
 
-If the evaluator needs persistent state (a model client, a cached lookup, an async I/O resource), use `class` style instead — `BaseEvaluator.__init__` is where you set up state safely. See `references/evaluator-styles/class.md`.
+If the evaluator needs persistent state (a model client, a cached lookup, an async I/O resource), use `class` style instead — `BaseEvaluator.__init__` is where you set up state safely. See `references/python/evaluator-styles/class.md`.

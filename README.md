@@ -74,7 +74,7 @@ npx skills add datadog-labs/agent-skills \
   --skill dd-audit-compliance-report \
   --skill dd-audit-ai-activity \
   --skill agent-observability-experiment-analyzer \
-  --skill agent-observability-experiment-py-bootstrap \
+  --skill agent-observability-experiment-bootstrap \
   --skill agent-observability-trace-rca \
   --skill agent-observability-eval-bootstrap \
   --skill agent-observability-eval-pipeline \
@@ -92,7 +92,7 @@ The `agent-observability` directory contains eight skills for working with Agent
 | Skill | Purpose |
 |-------|---------|
 | `agent-observability-experiment-analyzer` | Analyze and compare offline LLM experiments |
-| `agent-observability-experiment-py-bootstrap` | Generate self-contained Python experiment code using the `ddtrace.llmobs` SDK |
+| `agent-observability-experiment-bootstrap` | Bootstrap reproducible experiments through the Python or Node SDK |
 | `agent-observability-trace-rca` | Root-cause production failures using eval judge signal or runtime errors |
 | `agent-observability-eval-bootstrap` | Generate evaluator code from traces, optionally seeded by RCA output. Also emits a dataset from traces in `--emit-dataset` mode. |
 | `agent-observability-eval-pipeline` | Eight-phase pipeline: classify → RCA → bootstrap evaluators → create dataset → publish → generate experiment → run → analyze. Stop early with `--stop-after`. |
@@ -117,16 +117,20 @@ Use `agent-observability-eval-pipeline` to run all three steps in sequence with 
 Use `agent-observability-session-classify` independently to evaluate whether individual assistant sessions
 satisfied user intent, combining Agent Observability trace data with RUM behavioral signals.
 
-Use `agent-observability-experiment-py-bootstrap` to generate a self-contained Python experiment client
-that uses the `ddtrace.llmobs` SDK — runnable as a `.py` script or `.ipynb` notebook, with
-inline records, a CSV path, or a named Datadog dataset as the input.
+Use `agent-observability-experiment-bootstrap` to bootstrap a reproducible experiment through the
+Python `ddtrace.llmobs` SDK or the Node `dd-trace` SDK. Python remains the default adapter;
+generated artifacts can use inline records, local files, or named Datadog datasets.
+
+The bootstrap skill keeps adapter-specific contracts in its `references/` directory and loads only the selected
+Python or Node SDK reference. Python provider and evaluator-style references live under `references/python/` and are
+loaded separately when needed.
 
 #### Install
 
 ```bash
 # Claude Code — copy any or all skills
 cp -r agent-observability/agent-observability-experiment-analyzer ~/.claude/skills
-cp -r agent-observability/agent-observability-experiment-py-bootstrap ~/.claude/skills
+cp -r agent-observability/agent-observability-experiment-bootstrap ~/.claude/skills
 cp -r agent-observability/agent-observability-trace-rca ~/.claude/skills
 cp -r agent-observability/agent-observability-eval-bootstrap ~/.claude/skills
 cp -r agent-observability/agent-observability-eval-pipeline ~/.claude/skills
@@ -167,11 +171,12 @@ Look at the errors on <ml_app> over the last 24h
 /eval-bootstrap <ml_app> [paste eval-trace-rca output here] # seeded from RCA
 /eval-bootstrap <ml_app> --data-only                        # emit JSON spec instead of Python SDK code
 
-# Generate a Python experiment client using the ddtrace.llmobs SDK
-/agent-observability-experiment-py-bootstrap                                                  # 3-record inline sample
-/agent-observability-experiment-py-bootstrap --dataset ./data/qa.json --format ipynb          # local JSON dataset, notebook
-/agent-observability-experiment-py-bootstrap --dataset-name qa_v3 --project-name customer-qa  # existing Datadog dataset
-/agent-observability-experiment-py-bootstrap --evaluator-style remote                         # server-side RemoteEvaluator stubs
+# Bootstrap an experiment (Python SDK remains the default)
+/agent-observability-experiment-bootstrap                                                  # 3-record inline Python sample
+/agent-observability-experiment-bootstrap --dataset ./data/qa.json --format ipynb          # local JSON dataset, Python notebook
+/agent-observability-experiment-bootstrap --dataset-name qa_v3 --project-name customer-qa  # existing Datadog dataset
+/agent-observability-experiment-bootstrap --evaluator-style remote                         # server-side RemoteEvaluator stubs
+/agent-observability-experiment-bootstrap --adapter node --format mjs --task-source app:answer # Node SDK artifact
 
 # Classify a session
 /eval-session-classify <session_id>

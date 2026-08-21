@@ -32,4 +32,4 @@ class FaithfulnessJudge(BaseEvaluator):
 
 ## When NOT to use this style
 
-If the evaluator is a one-line check (`exact_match`, `length_under_500`), use `function` style — the class boilerplate adds noise. See `references/evaluator-styles/function.md`.
+If the evaluator is a one-line check (`exact_match`, `length_under_500`), use `function` style — the class boilerplate adds noise. See `references/python/evaluator-styles/function.md`.
