@@ -96,6 +96,8 @@ The `agent-observability` directory contains seven skills for working with Agent
 | `agent-observability-eval-pipeline` | Eight-phase pipeline: classify → RCA → bootstrap evaluators → create dataset → publish → generate experiment → run → analyze. Stop early with `--stop-after`. |
 | `agent-observability-session-classify` | Classify whether user intent was satisfied in a session (trace + RUM signals) |
 
+The local experiment skill keeps `SKILL.md` focused on purpose-to-profile selection. It loads `references/common.md` and only the selected profile reference before delegating artifact construction to the experiment bootstrap skill.
+
 **Eval pipeline flow:**
 
 ```
