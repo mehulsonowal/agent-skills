@@ -18,8 +18,8 @@ assert os.getenv("ANTHROPIC_API_KEY"), "ANTHROPIC_API_KEY is required for the wi
 
 ## Adapter notes
 
-- `anthropic.Anthropic().messages.create(model=..., max_tokens=..., messages=[...])` returns a `Message` object. Extract text via `.content[0].text` (note: `content` is a list of blocks, not a single string).
-- If the user's function returns the raw `Message`, wrap with a `.content[0].text` extractor in `task_fn`.
+- `anthropic.Anthropic().messages.create(model=..., max_tokens=..., messages=[...])` returns a `Message` object. `content` is a list of blocks (text, tool_use, thinking, etc.); do not assume block 0 is text.
+- If the user's function returns the raw `Message`, wrap it with an extractor that joins every text block, for example `"".join(block.text for block in message.content if getattr(block, "type", None) == "text")`, in `task_fn`. Preserve `tool_use` blocks separately when the experiment evaluates tool use.
 - `max_tokens` is **required** — unlike OpenAI, Anthropic raises if it's missing. If the user's function omits it, leave their signature alone; the call will fail at runtime and the user can fix.
 - Async (`AsyncAnthropic`): wrap with `asyncio.run(...)` inside a sync `task_fn`.
 

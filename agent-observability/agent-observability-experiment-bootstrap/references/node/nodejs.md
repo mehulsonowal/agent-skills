@@ -17,9 +17,7 @@ Use the public `tracer.llmobs.experiments` entry point. Do not import `src/llmob
 ## Setup and project resolution
 
 ```js
-'use strict'
-
-const tracer = require('dd-trace')
+import tracer from 'dd-trace'
 
 tracer.init({
   llmobs: { mlApp: process.env.DD_LLMOBS_ML_APP || '<project>' },
@@ -40,7 +38,7 @@ const dataset = experiments.createDataset('qa-v3', {
   records: [
     {
       inputData: { prompt: 'What is 2 + 2?' },
-      expectedOutput: '4',
+      expectedOutput: { answer: '4', category: 'arithmetic' },
       metadata: { source: 'synthetic' },
       tags: ['split:eval'],
     },
@@ -77,9 +75,9 @@ const result = await experiments.experiment({
     return output
   },
   evaluators: {
-    exact_match: (input, output, expected) => output === expected,
+    exact_match: (input, output, expected) => output.answer === expected.answer,
     confidence_score: (input, output) => Number(output.confidence),
-    category: (input, output) => output.category,
+    category: (input, output, expected) => output.category === expected.category,
   },
   summaryEvaluators: {
     pass_rate: (inputs, outputs, expectedOutputs, evaluatorResults, metadata) =>

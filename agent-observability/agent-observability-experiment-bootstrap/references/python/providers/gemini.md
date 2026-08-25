@@ -20,13 +20,20 @@ assert os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"), (
 If the call-site uses `vertexai.generative_models.GenerativeModel` (not `google.generativeai`), the auth path is Google Cloud Application Default Credentials, not an API key. Emit:
 
 ```python
-# Vertex AI uses Google Cloud ADC, not an API key.
-# Run `gcloud auth application-default login` before running this file, or set
-# GOOGLE_APPLICATION_CREDENTIALS to point at a service account JSON.
-assert os.getenv("GOOGLE_APPLICATION_CREDENTIALS"), (
-    "GOOGLE_APPLICATION_CREDENTIALS path is required for the wired task_fn (Vertex AI), "
-    "or run `gcloud auth application-default login` before invoking."
-)
+# Vertex AI uses Google Cloud ADC, not an API key. Either user ADC from
+# `gcloud auth application-default login` or GOOGLE_APPLICATION_CREDENTIALS
+# pointing at a service account JSON is sufficient.
+import google.auth
+from google.auth.exceptions import DefaultCredentialsError
+
+try:
+    google.auth.default()
+except DefaultCredentialsError as exc:
+    raise AssertionError(
+        "Google Cloud ADC is required for the wired task_fn (Vertex AI): run "
+        "`gcloud auth application-default login`, or set GOOGLE_APPLICATION_CREDENTIALS "
+        "to a service account JSON."
+    ) from exc
 ```
 
 ## Adapter notes
