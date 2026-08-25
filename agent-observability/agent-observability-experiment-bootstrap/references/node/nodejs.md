@@ -19,8 +19,13 @@ Use the public `tracer.llmobs.experiments` entry point. Do not import `src/llmob
 ```js
 import tracer from 'dd-trace'
 
+// DD_LLMOBS_AGENTLESS_ENABLED=true (or a configured agent) is also required;
+// without either, tracer.llmobs.experiments silently no-ops.
 tracer.init({
-  llmobs: { mlApp: process.env.DD_LLMOBS_ML_APP || '<project>' },
+  llmobs: {
+    mlApp: process.env.DD_LLMOBS_ML_APP || '<project>',
+    enabled: true,
+  },
 })
 
 const { experiments } = tracer.llmobs
@@ -28,7 +33,7 @@ const { experiments } = tracer.llmobs
 
 The SDK client requires `DD_API_KEY`, `DD_APP_KEY`, and a configured site. It resolves the project from `llmobs.mlApp`, then the tracer service fallback. The installed source also requires LLM Observability to be enabled; preserve the user’s tracer configuration and report when `tracer.llmobs.experiments` is a no-op because credentials, project, or enablement are missing. `DD_SITE` defaults according to the tracer configuration.
 
-Prefer CommonJS for the legacy `.js` path and ESM only when the user requests `.mjs` and the repository package configuration supports it.
+Generated Node artifacts use `.mjs` and ESM imports. Do not use CommonJS `require()` in the generated artifact.
 
 ## Dataset API
 

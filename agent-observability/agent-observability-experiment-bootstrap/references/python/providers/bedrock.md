@@ -8,22 +8,32 @@ Triggered by introspection (Workflow step 2.5) when the call-site function impor
 
 ## `{{PROVIDER_ASSERTS}}` substitution
 
+Only emit static credential asserts when the call-site explicitly supplies access-key credentials (for example,
+`aws_access_key_id=`/`aws_secret_access_key=` kwargs or bare env-var usage without a profile, session, or role).
+Otherwise trust boto3's default credential provider chain and emit a note instead: profiles, SSO, IAM Identity Center,
+and EC2/ECS/Lambda roles do not require these environment variables.
+
 ```python
 assert os.getenv("AWS_ACCESS_KEY_ID"), "AWS_ACCESS_KEY_ID is required for the wired task_fn (Bedrock)."
 assert os.getenv("AWS_SECRET_ACCESS_KEY"), "AWS_SECRET_ACCESS_KEY is required for the wired task_fn (Bedrock)."
 ```
 
-## Optional env vars (do NOT assert; document in `# TODO` comments)
+## Optional env vars
 
-- `AWS_SESSION_TOKEN` — required when using short-lived credentials (SSO, IAM Identity Center, etc.). If set, must be present at runtime.
-- `AWS_REGION` (or `AWS_DEFAULT_REGION`) — Bedrock is region-scoped. Defaults to `us-east-1` if unset; emit a comment:
+- `AWS_SESSION_TOKEN` — needed only when the selected credential source explicitly uses a session token. Do not
+  require it for profile, SSO, IAM Identity Center, or instance-role credentials resolved by boto3.
+- `AWS_REGION` (or `AWS_DEFAULT_REGION`) — Bedrock is region-scoped and boto3 does **not** provide a default region.
+  If the call-site does not pass an explicit `region_name=`, emit:
 
   ```python
-  # AWS Bedrock is region-scoped. Defaults to us-east-1; set AWS_REGION if your
-  # Bedrock-enabled region differs (us-west-2, eu-central-1, etc.).
+  assert os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION"), (
+      "AWS_REGION (or AWS_DEFAULT_REGION) is required for Bedrock; "
+      "boto3 has no default region."
+  )
   ```
 
-- `AWS_PROFILE` — alternative to access-key/secret pair when using `~/.aws/credentials`. If the user's function uses `boto3.Session(profile_name=...)`, key-pair asserts may not apply — emit a comment instead.
+- `AWS_PROFILE` — an alternative credential source. If the user's function uses `boto3.Session(profile_name=...)`,
+  skip static key-pair asserts and trust boto3's credential resolution.
 
 ## Adapter notes
 
