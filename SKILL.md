@@ -24,6 +24,7 @@ Essential Datadog skills for AI agents.
 | **dd-software-delivery** | CI/CD workflow skills — unblock PR, triage flaky tests |
 | **dd-apps**              | Build Datadog Apps — scaffold, run, upload, publish, CI/CD |
 | **dd-product-recommender** | Recommend the right Datadog products for a codebase and/or goal (recommendation only) |
+| **dd-instrument-rum** | Instrument browser apps with Datadog Browser RUM — React, Next.js, Angular, Vue, Nuxt, Svelte, vanilla |
 
 ## Install
 
