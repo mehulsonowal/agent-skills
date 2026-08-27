@@ -38,7 +38,7 @@ The judge must exist in the Datadog UI before the experiment runs. Emit a commen
 - The judge needs its own model/provider config that the experiment process doesn't have access to.
 - The user wants to swap judges without changing experiment code.
 
-For one-off rubrics tied to a single experiment, inline `LLMJudge` (under the `function` style) is simpler. See `references/evaluator-styles/function.md`.
+For one-off rubrics tied to a single experiment, inline `LLMJudge` (under the `function` style) is simpler. See `references/python/evaluator-styles/function.md`.
 
 ## When NOT to use this style
 

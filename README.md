@@ -15,6 +15,9 @@ Datadog skills for Claude Code, Codex CLI, Gemini CLI, Cursor, Windsurf, OpenCod
 | **dd-browser-sdk** | Browser SDK: RUM, Logs, Session Replay, profiling, product analytics, error tracking, version migration |
 | **dd-audit** | Audit Trail investigations: who changed what, key compromise, cost spike root cause, compliance evidence (SOC 2/PCI), AI activity auditing |
 | **dd-software-delivery** | CI/CD workflow skills — unblock PR pipelines, triage flaky tests (MCP + pup) |
+| **dd-apps** | Build Datadog Apps — scaffold, run locally, upload, publish, CI/CD, DDSQL data access |
+| **dd-product-recommender** | Recommend the right Datadog products for a codebase and/or goal (recommendation only) |
+| **dd-instrument-rum** | Instrument browser apps with Datadog Browser RUM — React, Next.js, Angular, Vue, Nuxt, Svelte, vanilla |
 
 ## Install
 
@@ -74,27 +77,31 @@ npx skills add datadog-labs/agent-skills \
   --skill agent-observability-experiment-analyzer \
   --skill agent-observability-local-experiment \
   --skill agent-observability-experiment-py-bootstrap \
+  --skill agent-observability-experiment-bootstrap \
   --skill agent-observability-trace-rca \
   --skill agent-observability-eval-bootstrap \
   --skill agent-observability-eval-pipeline \
   --skill agent-observability-session-classify \
+  --skill agent-observability-auto-experiment \
+  --skill agent-observability-replay-trace \
   --skill k9-ownership-byod-setup \
   --full-depth -y
 ```
 
 ### Agent Observability (LLMO)
 
-The `agent-observability` directory contains seven skills for working with Agent Observability data:
+The `agent-observability` directory contains eight skills for working with Agent Observability data:
 
 | Skill | Purpose |
 |-------|---------|
 | `agent-observability-experiment-analyzer` | Analyze and compare offline LLM experiments |
-| `agent-observability-local-experiment` | Plan, validate, and run goal-oriented local experiments across exploration, comparison, regression, reproduction, optimization, and cost/performance profiles |
-| `agent-observability-experiment-py-bootstrap` | Generate self-contained Python experiment code using the `ddtrace.llmobs` SDK |
+| `agent-observability-experiment-bootstrap` | Bootstrap reproducible experiments through the Python or Node SDK |
 | `agent-observability-trace-rca` | Root-cause production failures using eval judge signal or runtime errors |
 | `agent-observability-eval-bootstrap` | Generate evaluator code from traces, optionally seeded by RCA output. Also emits a dataset from traces in `--emit-dataset` mode. |
 | `agent-observability-eval-pipeline` | Eight-phase pipeline: classify → RCA → bootstrap evaluators → create dataset → publish → generate experiment → run → analyze. Stop early with `--stop-after`. |
 | `agent-observability-session-classify` | Classify whether user intent was satisfied in a session (trace + RUM signals) |
+| `agent-observability-auto-experiment` | Local hill-climb: baseline-eval a prompt/file against LLM-Obs data, make one focused change, re-score with the same harness, keep it only if it beats the best, repeat |
+| `agent-observability-replay-trace` | Iterate on one trace: re-run it against local code, diff old vs new output, loop until satisfied (CLI, no server; edit → replay → diff) |
 
 The local experiment skill keeps `SKILL.md` focused on purpose-to-profile selection. It loads `references/common.md` and only the selected profile reference before delegating artifact construction to the experiment bootstrap skill.
 
@@ -115,9 +122,13 @@ Use `agent-observability-eval-pipeline` to run all three steps in sequence with 
 Use `agent-observability-session-classify` independently to evaluate whether individual assistant sessions
 satisfied user intent, combining Agent Observability trace data with RUM behavioral signals.
 
-Use `agent-observability-experiment-py-bootstrap` to generate a self-contained Python experiment client
-that uses the `ddtrace.llmobs` SDK — runnable as a `.py` script or `.ipynb` notebook, with
-inline records, a CSV path, or a named Datadog dataset as the input.
+Use `agent-observability-experiment-bootstrap` to bootstrap a reproducible experiment through the
+Python `ddtrace.llmobs` SDK or the Node `dd-trace` SDK. Python remains the default adapter;
+generated artifacts can use inline records, local files, or named Datadog datasets.
+
+The bootstrap skill keeps adapter-specific contracts in its `references/` directory and loads only the selected
+Python or Node SDK reference. Python provider and evaluator-style references live under `references/python/` and are
+loaded separately when needed.
 
 #### Install
 
@@ -126,6 +137,7 @@ inline records, a CSV path, or a named Datadog dataset as the input.
 cp -r agent-observability/agent-observability-experiment-analyzer ~/.claude/skills
 cp -r agent-observability/agent-observability-local-experiment ~/.claude/skills
 cp -r agent-observability/agent-observability-experiment-py-bootstrap ~/.claude/skills
+cp -r agent-observability/agent-observability-experiment-bootstrap ~/.claude/skills
 cp -r agent-observability/agent-observability-trace-rca ~/.claude/skills
 cp -r agent-observability/agent-observability-eval-bootstrap ~/.claude/skills
 cp -r agent-observability/agent-observability-eval-pipeline ~/.claude/skills
@@ -170,11 +182,12 @@ Look at the errors on <ml_app> over the last 24h
 /eval-bootstrap <ml_app> [paste eval-trace-rca output here] # seeded from RCA
 /eval-bootstrap <ml_app> --data-only                        # emit JSON spec instead of Python SDK code
 
-# Generate a Python experiment client using the ddtrace.llmobs SDK
-/agent-observability-experiment-py-bootstrap                                                  # 3-record inline sample
-/agent-observability-experiment-py-bootstrap --dataset ./data/qa.json --format ipynb          # local JSON dataset, notebook
-/agent-observability-experiment-py-bootstrap --dataset-name qa_v3 --project-name customer-qa  # existing Datadog dataset
-/agent-observability-experiment-py-bootstrap --evaluator-style remote                         # server-side RemoteEvaluator stubs
+# Bootstrap an experiment (Python SDK remains the default)
+/agent-observability-experiment-bootstrap                                                  # 3-record inline Python sample
+/agent-observability-experiment-bootstrap --dataset ./data/qa.json --format ipynb          # local JSON dataset, Python notebook
+/agent-observability-experiment-bootstrap --dataset-name qa_v3 --project-name customer-qa  # existing Datadog dataset
+/agent-observability-experiment-bootstrap --evaluator-style remote                         # server-side RemoteEvaluator stubs
+/agent-observability-experiment-bootstrap --adapter node --format mjs --task-source app:answer # Node SDK artifact
 
 # Classify a session
 /eval-session-classify <session_id>
@@ -357,6 +370,62 @@ unblock-pr my-feature-branch github.com/org/repo
 # Triage a specific flaky test
 triage-flaky-test TestMyFunc
 triage-flaky-test com.example.MyTest github.com/org/repo
+```
+
+### Datadog Apps (dd-apps)
+
+The `dd-apps` directory contains a skill for building [Datadog Apps](https://docs.datadoghq.com/developers/apps/) — locally-developed web apps built with TypeScript and React that integrate with Datadog surfaces.
+
+| Skill | Purpose |
+|-------|---------|
+| `datadog-app` | Scaffold, run locally, build, upload, publish, set up CI/CD, trigger Workflow Automation, and query data with DDSQL or Action Catalog |
+
+#### Prerequisites
+
+A Datadog account with an API key and application key that have Actions API Access enabled. See [App Builder Access and Authentication](https://docs.datadoghq.com/actions/app_builder/access_and_auth/).
+
+```bash
+export DD_API_KEY="<YOUR_API_KEY>"
+export DD_APP_KEY="<YOUR_APPLICATION_KEY>"
+```
+
+Node.js 20.19+ or 22.12+ is required. Use Volta, nvm, or fnm to manage versions.
+
+#### Install
+
+```bash
+# Claude Code
+cp -r dd-apps/datadog-app ~/.claude/skills
+```
+
+Or via npx:
+
+```bash
+npx skills add datadog-labs/agent-skills \
+  --skill datadog-app \
+  --full-depth -y
+```
+
+#### Usage
+
+```
+# Scaffold a new app
+Scaffold a new Datadog App called my-app
+
+# Run locally
+Run my Datadog App locally
+
+# Upload and publish
+Upload my app to Datadog
+How do I publish my app?
+
+# Troubleshoot
+I'm getting a 401 error when uploading
+My backend function isn't working
+
+# Query data
+Query my app datastore with DDSQL
+Trigger a Workflow Automation workflow from a backend function
 ```
 
 ## Quick Reference
